@@ -6,12 +6,20 @@ import com.soares.hudson.springcrude.models.Cursos;
 import com.soares.hudson.springcrude.models.ResponseObject;
 import com.soares.hudson.springcrude.repository.CursosRepository;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import jakarta.websocket.server.PathParam;
 import lombok.AllArgsConstructor;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -37,6 +45,37 @@ public class CursosController {
             return new ResponseObject<Cursos>(null, e.getMessage(), HttpStatus.BAD_REQUEST.value());
         }
 
+    }
+
+    @GetMapping("visualizar/{id}")
+    @Operation(summary = "Visualiza um curso pelo seu id")
+    @ApiResponses(value = {
+            @ApiResponse(description = "Found", responseCode = "200", content = {
+                    @Content(mediaType = "application/json", schema = @Schema(implementation = Cursos.class))
+            })
+    })
+    public ResponseObject<Cursos> view(@PathVariable Long id) {
+        try {
+            final Cursos curso = this.repository.getCursoPorId(id);
+            return new ResponseObject<Cursos>(curso, "Ok", HttpStatus.OK.value());
+        } catch (Exception e) {
+            return new ResponseObject<Cursos>(null, e.getMessage(), HttpStatus.BAD_REQUEST.value());
+        }
+    }
+
+    @PostMapping("atualizar")
+    @Operation(summary = "Atualiza um curso pelo seu id")
+    @ApiResponses(value = {
+            @ApiResponse(description = "Curso atualizado", responseCode = "200", content = {
+                    @Content(mediaType = "application/json", schema = @Schema(implementation = Cursos.class))
+            })
+    })
+    public ResponseObject<Cursos> atualizar(@RequestBody Cursos curso) {
+        try {
+            return new ResponseObject<Cursos>(this.repository.save(curso), "Curso atualizado", HttpStatus.OK.value());
+        } catch (Exception e) {
+            return new ResponseObject<Cursos>(null, e.getMessage(), HttpStatus.BAD_REQUEST.value());
+        }
     }
 
 }
