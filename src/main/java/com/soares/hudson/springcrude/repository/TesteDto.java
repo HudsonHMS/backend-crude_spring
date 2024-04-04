@@ -1,6 +1,5 @@
 package com.soares.hudson.springcrude.repository;
 
-import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Component;
 
 import jakarta.persistence.EntityManager;

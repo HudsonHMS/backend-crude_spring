@@ -11,17 +11,16 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import jakarta.websocket.server.PathParam;
 import lombok.AllArgsConstructor;
 
 import java.util.List;
-import java.util.Optional;
-
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 @RestController
@@ -59,11 +58,11 @@ public class CursosController {
             final Cursos curso = this.repository.getCursoPorId(id);
             return new ResponseObject<Cursos>(curso, "Ok", HttpStatus.OK.value());
         } catch (Exception e) {
-            return new ResponseObject<Cursos>(null, e.getMessage(), HttpStatus.BAD_REQUEST.value());
+            return new ResponseObject<Cursos>(null, e.getMessage(), HttpStatus.NOT_FOUND.value());
         }
     }
 
-    @PostMapping("atualizar")
+    @PutMapping("atualizar")
     @Operation(summary = "Atualiza um curso pelo seu id")
     @ApiResponses(value = {
             @ApiResponse(description = "Curso atualizado", responseCode = "200", content = {
@@ -75,6 +74,22 @@ public class CursosController {
             return new ResponseObject<Cursos>(this.repository.save(curso), "Curso atualizado", HttpStatus.OK.value());
         } catch (Exception e) {
             return new ResponseObject<Cursos>(null, e.getMessage(), HttpStatus.BAD_REQUEST.value());
+        }
+    }
+
+    @DeleteMapping("deletar/{id}")
+    @Operation(summary = "Deleta um curso pelo seu id")
+    @ApiResponses(value = {
+            @ApiResponse(description = "Curso deletado", responseCode = "200", content = {
+                    @Content(mediaType = "application/json", schema = @Schema(implementation = Cursos.class))
+            })
+    })
+    public ResponseObject<Boolean> deletar(@PathVariable Long id) {
+        try {
+            this.repository.deleteById(id);
+            return new ResponseObject<Boolean>(true, "Curso atualizado", HttpStatus.OK.value());
+        } catch (Exception e) {
+            return new ResponseObject<Boolean>(false, e.getMessage(), HttpStatus.BAD_REQUEST.value());
         }
     }
 
