@@ -2,19 +2,24 @@ package com.soares.hudson.springcrude.controllers;
 
 import org.springframework.web.bind.annotation.RestController;
 
+import com.soares.hudson.dto.CursoDTO;
 import com.soares.hudson.springcrude.models.Cursos;
 import com.soares.hudson.springcrude.models.ResponseObject;
-import com.soares.hudson.springcrude.repository.CursosRepository;
+import com.soares.hudson.springcrude.services.CursosService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import lombok.AllArgsConstructor;
 
 import java.util.List;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -23,25 +28,26 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
+@Validated
 @RestController
 @RequestMapping("/cursos")
 @AllArgsConstructor
 public class CursosController {
 
-    private final CursosRepository repository;
+    private final CursosService cursoService;
 
     @GetMapping("")
-    public List<Cursos> getCursos() {
-        return this.repository.findAll();
+    public ResponseObject<List<CursoDTO>> getCursos() {
+        return new ResponseObject<>(cursoService.getAllActiveCursos(), "OK", HttpStatus.OK.value());
     }
 
     @PostMapping("")
-    public ResponseObject<Cursos> postMethodName(@RequestBody Cursos entity) {
+    public ResponseObject<CursoDTO> cadastrarCurco(@RequestBody @Valid @NotNull CursoDTO entity) {
         try {
-            Cursos curso = this.repository.save(entity);
-            return new ResponseObject<Cursos>(curso, "Curso cadastrado com sucesso!", HttpStatus.CREATED.value());
+            CursoDTO curso = cursoService.save(entity);
+            return new ResponseObject<>(curso, "Curso cadastrado com sucesso!", HttpStatus.CREATED.value());
         } catch (Exception e) {
-            return new ResponseObject<Cursos>(null, e.getMessage(), HttpStatus.BAD_REQUEST.value());
+            return new ResponseObject<>(null, e.getMessage(), HttpStatus.BAD_REQUEST.value());
         }
 
     }
@@ -53,13 +59,9 @@ public class CursosController {
                     @Content(mediaType = "application/json", schema = @Schema(implementation = Cursos.class))
             })
     })
-    public ResponseObject<Cursos> view(@PathVariable Long id) {
-        try {
-            final Cursos curso = this.repository.getCursoPorId(id);
-            return new ResponseObject<Cursos>(curso, "Ok", HttpStatus.OK.value());
-        } catch (Exception e) {
-            return new ResponseObject<Cursos>(null, e.getMessage(), HttpStatus.NOT_FOUND.value());
-        }
+    public ResponseObject<CursoDTO> view(@PathVariable @NotNull @Positive Long id) {
+        final CursoDTO curso = cursoService.getCursoById( id );
+        return new ResponseObject<>(curso, "OK", HttpStatus.OK.value());
     }
 
     @PutMapping("atualizar")
@@ -69,12 +71,8 @@ public class CursosController {
                     @Content(mediaType = "application/json", schema = @Schema(implementation = Cursos.class))
             })
     })
-    public ResponseObject<Cursos> atualizar(@RequestBody Cursos curso) {
-        try {
-            return new ResponseObject<Cursos>(this.repository.save(curso), "Curso atualizado", HttpStatus.OK.value());
-        } catch (Exception e) {
-            return new ResponseObject<Cursos>(null, e.getMessage(), HttpStatus.BAD_REQUEST.value());
-        }
+    public ResponseObject<CursoDTO> atualizar(@RequestBody @Valid CursoDTO curso) {
+       return new ResponseObject<>(cursoService.edit(curso), "Curso atualizado", HttpStatus.OK.value()); 
     }
 
     @DeleteMapping("deletar/{id}")
@@ -84,13 +82,11 @@ public class CursosController {
                     @Content(mediaType = "application/json", schema = @Schema(implementation = Cursos.class))
             })
     })
-    public ResponseObject<Boolean> deletar(@PathVariable Long id) {
-        try {
-            this.repository.deleteById(id);
-            return new ResponseObject<Boolean>(true, "Curso atualizado", HttpStatus.OK.value());
-        } catch (Exception e) {
-            return new ResponseObject<Boolean>(false, e.getMessage(), HttpStatus.BAD_REQUEST.value());
-        }
+    public ResponseObject<Boolean> deletar(@PathVariable @NotNull @Positive Long id) {
+       
+        cursoService.deleteById(id);
+        return new ResponseObject<>(true, "Curso atualizado", HttpStatus.OK.value());
+       
     }
 
 }
