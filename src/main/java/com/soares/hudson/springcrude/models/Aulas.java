@@ -44,7 +44,7 @@ public class Aulas {
     @Column( length = 100, nullable = false )
     private String url;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL, optional = false)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "curso_id", nullable = false)
     @JsonProperty(access = Access.WRITE_ONLY)
     private Cursos cursos;

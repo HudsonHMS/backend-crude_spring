@@ -2,6 +2,7 @@ package com.soares.hudson.springcrude.models;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.hibernate.validator.constraints.Length;
 
@@ -53,7 +54,7 @@ public class Cursos {
     @Convert(converter = StatusConverter.class)
     private StatusEnum status = StatusEnum.ATIVO;
 
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE, orphanRemoval = true, mappedBy = "cursos")
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "cursos")
     private List<Aulas> aulas;
 
     public static Cursos cursoBuilder(Long id, String nome, Double valor, CategoriaEnum categoria, StatusEnum status,
@@ -77,7 +78,7 @@ public class Cursos {
         cursos.setStatus(cursoDTO.getStatus());
         if (cursoDTO.getAulas() != null) {
             cursos.setAulas(cursoDTO.getAulas().stream()
-                    .map(aula -> new Aulas(aula.id(), aula.nome(), aula.url(), null)).toList());
+                    .map(aula -> new Aulas(aula.id(), aula.nome(), aula.url(), cursos)).toList());
         } else {
             cursos.setAulas(new ArrayList<>());
         }

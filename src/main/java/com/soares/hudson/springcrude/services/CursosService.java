@@ -51,7 +51,7 @@ public class CursosService {
     }
 
     public CursoDTO edit(@Valid @NotNull CursoDTO entity) throws RegistroNaoEncontradoException {
-        CursoDTO curso = new CursoDTO(cursosRepository.getCursoPorId(entity.getId()));
+        Cursos curso = cursosRepository.getCursoPorId(entity.getId());
         if (null == curso.getId()) {
             throw new RegistroNaoEncontradoException(entity.getId(), entity);
         }
