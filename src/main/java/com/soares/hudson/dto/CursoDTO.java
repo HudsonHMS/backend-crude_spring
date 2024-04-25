@@ -14,6 +14,7 @@ import com.soares.hudson.springcrude.enuns.CategoriaEnum;
 import com.soares.hudson.springcrude.enuns.StatusConverter;
 import com.soares.hudson.springcrude.enuns.StatusEnum;
 import com.soares.hudson.springcrude.models.Cursos;
+import com.soares.hudson.utils.ValueOfEnum;
 
 import jakarta.persistence.Convert;
 import jakarta.validation.constraints.NotBlank;
