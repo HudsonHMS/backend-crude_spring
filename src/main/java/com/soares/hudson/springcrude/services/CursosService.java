@@ -4,10 +4,13 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
 import com.soares.hudson.dto.CursoDTO;
+import com.soares.hudson.dto.PagedCursoDTO;
 import com.soares.hudson.springcrude.enuns.StatusEnum;
 import com.soares.hudson.springcrude.exceptions.RegistroNaoEncontradoException;
 import com.soares.hudson.springcrude.models.Cursos;
@@ -25,7 +28,7 @@ public class CursosService {
 
     private final CursosRepository cursosRepository;
   
-    public List<CursoDTO> getAllActiveCursos() {
+    /* public List<CursoDTO> getAllActiveCursos() {
         try {
             StatusEnum[] status = new StatusEnum[]{StatusEnum.ATIVO};
             return cursosRepository.findByStatusIn( status )
@@ -34,6 +37,17 @@ public class CursosService {
                         .collect(Collectors.toList());
         } catch (Exception ex) {
             return Collections.emptyList();
+        }
+    } */
+
+    public PagedCursoDTO getAllActiveCursos( int page, int limit) {
+        try {
+            StatusEnum[] status = new StatusEnum[]{StatusEnum.ATIVO};
+            Page<Cursos> pageDto = cursosRepository.findByStatusIn( status, PageRequest.of(page, limit) );
+            List<CursoDTO> cursos = pageDto.get().map(CursoDTO::new).toList();
+            return new PagedCursoDTO(cursos, pageDto.getTotalPages(), (int)pageDto.getTotalElements());
+        } catch (Exception ex) {
+            return null;
         }
     }
 

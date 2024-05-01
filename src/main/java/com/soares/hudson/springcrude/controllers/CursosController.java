@@ -3,10 +3,12 @@ package com.soares.hudson.springcrude.controllers;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.soares.hudson.dto.CursoDTO;
+import com.soares.hudson.dto.PagedCursoDTO;
 import com.soares.hudson.springcrude.models.Cursos;
 import com.soares.hudson.springcrude.models.ResponseObject;
 import com.soares.hudson.springcrude.services.CursosService;
 
+import io.micrometer.common.lang.Nullable;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -24,6 +26,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -37,8 +40,10 @@ public class CursosController {
     private final CursosService cursoService;
 
     @GetMapping("")
-    public ResponseObject<List<CursoDTO>> getCursos() {
-        return new ResponseObject<>(cursoService.getAllActiveCursos(), "OK", HttpStatus.OK.value());
+    public ResponseObject<List<CursoDTO>> getCursos( @Nullable @RequestParam(name = "pagina", defaultValue = "0") Integer pagina,
+                                                     @Nullable @RequestParam(name = "limit", defaultValue = "10") Integer limit ) {
+        PagedCursoDTO pageDto = cursoService.getAllActiveCursos(pagina,limit);
+        return new ResponseObject<>(pageDto.cursoDTO(), "OK", HttpStatus.OK.value(), pageDto.totalPages(), pageDto.totalRegistros());
     }
 
     @PostMapping("")
